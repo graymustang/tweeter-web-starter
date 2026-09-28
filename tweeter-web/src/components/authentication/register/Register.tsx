@@ -1,15 +1,14 @@
 import "./Register.css";
 import "bootstrap/dist/css/bootstrap.css";
-import { useContext } from "react";
-import { UserInfoActionsContext } from "../../userInfo/UserInfoContexts";
+import useUserInfoActions from "../../hooks/useUserInfoActions";
 import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import { AuthToken, FakeData, User } from "tweeter-shared";
-import { ToastActionsContext } from "../../toaster/ToastContexts";
 import { Buffer } from "buffer";
 import { ToastType } from "../../toaster/Toast";
 import AuthenticationFields from "../AuthenticationFields";
+import useMessageActions from "../../hooks/useMessageActions";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -23,8 +22,8 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { updateUserInfo } = useContext(UserInfoActionsContext);
-  const { displayToast } = useContext(ToastActionsContext);
+  const { updateUserInfo } = useUserInfoActions();
+  const { displayToast } = useMessageActions();
 
   const checkSubmitButtonStatus = (): boolean => {
     return (

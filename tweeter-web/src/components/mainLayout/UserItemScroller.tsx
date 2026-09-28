@@ -1,14 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { AuthToken, FakeData, User } from "tweeter-shared";
-import { useParams } from "react-router-dom";
-import {
-    UserInfoActionsContext,
-    UserInfoContext,
-} from "../userInfo/UserInfoContexts";
-import { ToastActionsContext } from "../toaster/ToastContexts";
+import { AuthToken, User } from "tweeter-shared";
 import { ToastType } from "../toaster/Toast";
 import UserItem from "../userItem/UserItem";
+import useUserInfo from "../hooks/useUserInfo";
+import useMessageActions from "../hooks/useMessageActions";
+import useUserNavigation from "../hooks/useUserNavigation";
 
 export const PAGE_SIZE = 10;
 
@@ -24,38 +21,17 @@ interface Props {
 }
 
 const UserItemScroller = (props: Props) => {
-    const { displayToast } = useContext(ToastActionsContext);
+    const { displayToast } = useMessageActions();
+    const { displayedUser, authToken } = useUserInfo();
+
+    useUserNavigation(props.featurePath);
+
     const [items, setItems] = useState<User[]>([]);
     const [hasMoreItems, setHasMoreItems] = useState(true);
     const [lastItem, setLastItem] = useState<User | null>(null);
 
-    const { displayedUser, authToken } = useContext(UserInfoContext);
-    const { setDisplayedUser } = useContext(UserInfoActionsContext);
-    const { displayedUser: displayedUserAliasParam } = useParams();
-
     const addItems = (newItems: User[]) =>
         setItems((previousItems) => [...previousItems, ...newItems]);
-
-    const getUser = async (
-        authToken: AuthToken,
-        alias: string
-    ): Promise<User | null> => {
-        return FakeData.instance.findUserByAlias(alias);
-    };
-
-    useEffect(() => {
-        if (
-            authToken &&
-            displayedUserAliasParam &&
-            displayedUserAliasParam != displayedUser!.alias
-        ) {
-            getUser(authToken, displayedUserAliasParam).then((toUser) => {
-                if (toUser) {
-                    setDisplayedUser(toUser);
-                }
-            });
-        }
-    }, [displayedUserAliasParam]);
 
     useEffect(() => {
         reset();
@@ -103,7 +79,10 @@ const UserItemScroller = (props: Props) => {
                         key={index}
                         className="row mb-3 mx-0 px-0 border rounded bg-white"
                     >
-                        <UserItem user={item} featurePath={props.featurePath} />
+                        <UserItem
+                            user={item}
+                            featurePath={props.featurePath}
+                        />
                     </div>
                 ))}
             </InfiniteScroll>

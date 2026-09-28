@@ -1,12 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { AuthToken, FakeData, Status, Type, User } from "tweeter-shared";
 import { ToastType } from "../toaster/Toast";
-import { useContext } from "react";
-import { ToastActionsContext } from "../toaster/ToastContexts";
-import {
-  UserInfoActionsContext,
-  UserInfoContext,
-} from "../userInfo/UserInfoContexts";
+import useUserInfo from "../hooks/useUserInfo";
+import useUserInfoActions from "../hooks/useUserInfoActions";
+import useMessageActions from "../hooks/useMessageActions";
 
 interface Props {
   status: Status;
@@ -14,10 +11,9 @@ interface Props {
 }
 
 const Post = (props: Props) => {
-  const { displayToast } = useContext(ToastActionsContext);
-  const { displayedUser, authToken } = useContext(UserInfoContext);
-  const { setDisplayedUser } = useContext(UserInfoActionsContext);
-
+  const { displayToast } = useMessageActions();
+  const { displayedUser, authToken } = useUserInfo();
+  const { setDisplayedUser } = useUserInfoActions();
   const navigate = useNavigate();
   const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
