@@ -1,6 +1,4 @@
 import "./App.css";
-import { useContext } from "react";
-import { UserInfoContext } from "./components/userInfo/UserInfoContexts";
 import {
   BrowserRouter,
   Navigate,
@@ -16,9 +14,10 @@ import FolloweesScroller from "./components/mainLayout/FolloweesScroller";
 import FollowersScroller from "./components/mainLayout/FollowersScroller";
 import FeedScroller from "./components/mainLayout/FeedScroller";
 import StoryScroller from "./components/mainLayout/StoryScroller";
+import useUserInfo from "./components/hooks/useUserInfo";
 
 const App = () => {
-  const { currentUser, authToken } = useContext(UserInfoContext);
+  const { currentUser, authToken } = useUserInfo();
 
   const isAuthenticated = (): boolean => {
     return !!currentUser && !!authToken;
@@ -39,7 +38,7 @@ const App = () => {
 };
 
 const AuthenticatedRoutes = () => {
-  const { displayedUser } = useContext(UserInfoContext);
+  const { displayedUser } = useUserInfo();
 
   return (
     <Routes>
