@@ -15,14 +15,6 @@ const useUserNavigation = (featurePath: string) => {
 
   const { displayedUser: displayedUserAliasParam } = useParams();
 
-  const getUser = async (
-    authToken: AuthToken,
-    alias: string
-  ): Promise<User | null> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
-  };
-
   useEffect(() => {
     if (
       authToken &&

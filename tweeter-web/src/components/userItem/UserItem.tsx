@@ -44,14 +44,6 @@ const UserItem = (props: Props) => {
     return value.substring(index);
   };
 
-  const getUser = async (
-    authToken: AuthToken,
-    alias: string
-  ): Promise<User | null> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
-  };
-
   return (
     <div className="col bg-light mx-0 px-0">
       <div className="container px-0">

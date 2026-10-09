@@ -6,88 +6,75 @@ import UserItem from "../userItem/UserItem";
 import useUserInfo from "../hooks/useUserInfo";
 import useMessageActions from "../hooks/useMessageActions";
 import useUserNavigation from "../hooks/useUserNavigation";
+import { FolloweePresenter, FolloweeView } from "../../presenter/FolloweePresenter";
+import { UserItemPresenter, UserItemView } from "../../presenter/UserItemPresenter";
 
-export const PAGE_SIZE = 10;
 
 interface Props {
     featurePath: string;
-    loadMoreItems: (
-        authToken: AuthToken,
-        userAlias: string,
-        pageSize: number,
-        lastItem: User | null
-    ) => Promise<[User[], boolean]>;
-    itemDescription: string;
+    presenterFactory: (listener: FolloweeView) => UserItemView
 }
 
 const UserItemScroller = (props: Props) => {
     const { displayToast } = useMessageActions();
     const { displayedUser, authToken } = useUserInfo();
 
+    const listener: FolloweeView = {
+        const addItems = (newItems: User[]) =>
+            setItems((previousItems) => [...previousItems, ...newItems]),
+        displayErrorMessage: displayErrorMessage
+    }
+
+    const presenter = props.presenterFactory(listener);
+
     useUserNavigation(props.featurePath);
 
     const [items, setItems] = useState<User[]>([]);
-    const [hasMoreItems, setHasMoreItems] = useState(true);
-    const [lastItem, setLastItem] = useState<User | null>(null);
-
-    const addItems = (newItems: User[]) =>
-        setItems((previousItems) => [...previousItems, ...newItems]);
-
     useEffect(() => {
         reset();
         loadMoreItems(null);
     }, [displayedUser]);
 
     const reset = () => {
+        presenter.reset();
         setItems([]);
-        setLastItem(null);
-        setHasMoreItems(true);
+        presenter.reset();
     };
 
-    const loadMoreItems = async (lastItem: User | null) => {
-        try {
-            const [newItems, hasMore] = await props.loadMoreItems(
-                authToken!,
-                displayedUser!.alias,
-                PAGE_SIZE,
-                lastItem
-            );
+     const loadMoreItems = async(lastItem: User | null) => {
+        presenter.loadMoreItems(authToken, displayUser!.alias)
+};
 
-            setHasMoreItems(hasMore);
-            setLastItem(newItems[newItems.length - 1]);
-            addItems(newItems);
-        } catch (error) {
-            displayToast(
-                ToastType.Error,
-                `Failed to load ${props.itemDescription} because of exception: ${error}`,
-                0
-            );
-        }
-    };
+const getUser = async (
+    authToken: AuthToken,
+    alias: string
+): Promise<User | null> => {
+    return presenter.getUser(authToken, alias)
+};
 
-    return (
-        <div className="container px-0 overflow-visible vh-100">
-            <InfiniteScroll
-                className="pr-0 mr-0"
-                dataLength={items.length}
-                next={() => loadMoreItems(lastItem)}
-                hasMore={hasMoreItems}
-                loader={<h4>Loading...</h4>}
-            >
-                {items.map((item, index) => (
-                    <div
-                        key={index}
-                        className="row mb-3 mx-0 px-0 border rounded bg-white"
-                    >
-                        <UserItem
-                            user={item}
-                            featurePath={props.featurePath}
-                        />
-                    </div>
-                ))}
-            </InfiniteScroll>
-        </div>
-    );
+return (
+    <div className="container px-0 overflow-visible vh-100">
+        <InfiniteScroll
+            className="pr-0 mr-0"
+            dataLength={items.length}
+            next={() => loadMoreItems(lastItem)}
+            hasMore={hasMoreItems}
+            loader={<h4>Loading...</h4>}
+        >
+            {items.map((item, index) => (
+                <div
+                    key={index}
+                    className="row mb-3 mx-0 px-0 border rounded bg-white"
+                >
+                    <UserItem
+                        user={item}
+                        featurePath={props.featurePath}
+                    />
+                </div>
+            ))}
+        </InfiniteScroll>
+    </div>
+);
 };
 
 export default UserItemScroller;

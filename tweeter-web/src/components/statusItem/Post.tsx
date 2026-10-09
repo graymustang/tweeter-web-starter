@@ -43,14 +43,6 @@ const Post = (props: Props) => {
     return value.substring(index);
   };
 
-  const getUser = async (
-    authToken: AuthToken,
-    alias: string
-  ): Promise<User | null> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
-  };
-
   return (
     <>
       {props.status.segments.map((segment, index) =>
