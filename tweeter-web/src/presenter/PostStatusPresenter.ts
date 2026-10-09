@@ -1,5 +1,5 @@
 import { AuthToken, Status, User } from "tweeter-shared";
-import { StatusService } from "../components/model.service/StatusService";
+import { StatusService } from "../model.service/StatusService";
 
 export interface PostStatusView {
   setLoading: (loading: boolean) => void;

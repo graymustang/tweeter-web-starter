@@ -1,5 +1,5 @@
 import { AuthToken, User } from "tweeter-shared";
-import { FollowService } from "../components/model.service/FollowService";
+import { FollowService } from "../model.service/FollowService";
 
 export interface UserInfoView {
   setUserInfo: (isFollower: boolean, followeeCount: number, followerCount: number) => void;

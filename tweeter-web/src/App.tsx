@@ -12,8 +12,7 @@ import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import FolloweesScroller from "./components/mainLayout/FolloweesScroller";
 import FollowersScroller from "./components/mainLayout/FollowersScroller";
-import FeedScroller from "./components/mainLayout/FeedScroller";
-import StoryScroller from "./components/mainLayout/StoryScroller";
+import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import useUserInfo from "./components/hooks/useUserInfo";
 
 const App = () => {
@@ -44,8 +43,14 @@ const AuthenticatedRoutes = () => {
     <Routes>
       <Route element={<MainLayout />}>
         <Route index element={<Navigate to={`/feed/${displayedUser!.alias}`} />} />
-        <Route path="feed/:displayedUser" element={<FeedScroller />} />
-        <Route path="story/:displayedUser" element={<StoryScroller />} />
+        <Route
+          path="feed/:displayedUser"
+          element={<StatusItemScroller featurePath="/feed" listType="feed" />}
+        />
+        <Route
+          path="story/:displayedUser"
+          element={<StatusItemScroller featurePath="/story" listType="story" />}
+        />
         <Route path="followees/:displayedUser" element={<FolloweesScroller />} />
         <Route path="followers/:displayedUser" element={<FollowersScroller />} />
         <Route path="logout" element={<Navigate to="/login" />} />

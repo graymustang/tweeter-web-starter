@@ -1,5 +1,5 @@
 import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../components/model.service/UserService";
+import { UserService } from "../model.service/UserService";
 
 interface AuthenticationView {
   setLoading: (loading: boolean) => void;
