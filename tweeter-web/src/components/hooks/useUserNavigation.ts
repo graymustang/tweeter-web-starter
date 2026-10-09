@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { UserNavigationPresenter } from "../../presenter/UserNavigationPresenter";
 import useUserInfo from "./useUserInfo";
 import useUserInfoActions from "./useUserInfoActions";
 import useMessageActions from "./useMessageActions";
@@ -8,60 +8,38 @@ import { ToastType } from "../toaster/Toast";
 
 const useUserNavigation = (featurePath: string) => {
   const navigate = useNavigate();
-
   const { displayedUser, authToken } = useUserInfo();
   const { setDisplayedUser } = useUserInfoActions();
   const { displayToast } = useMessageActions();
+  const { displayedUser: aliasFromRoute } = useParams();
+  const presenterRef = useRef<UserNavigationPresenter | null>(null);
 
-  const { displayedUser: displayedUserAliasParam } = useParams();
+  if (!presenterRef.current) {
+    presenterRef.current = new UserNavigationPresenter(
+      {
+        setDisplayedUser,
+        navigate,
+        displayErrorMessage: (message) => displayToast(ToastType.Error, message, 0),
+      },
+      featurePath,
+    );
+  }
 
   useEffect(() => {
-    if (
-      authToken &&
-      displayedUserAliasParam &&
-      displayedUserAliasParam != displayedUser!.alias
-    ) {
-      getUser(authToken, displayedUserAliasParam).then((toUser) => {
-        if (toUser) {
-          setDisplayedUser(toUser);
-        }
-      });
+    if (authToken && aliasFromRoute && aliasFromRoute !== displayedUser?.alias) {
+      void presenterRef.current!.showUser(authToken, aliasFromRoute);
     }
-  }, [displayedUserAliasParam]);
+  }, [authToken, aliasFromRoute, displayedUser?.alias]);
 
-  const navigateToUser = async (
-    event: React.MouseEvent
-  ): Promise<void> => {
+  const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
-
-    try {
-      const alias = extractAlias(event.target.toString());
-
-      const toUser = await getUser(authToken!, alias);
-
-      if (toUser) {
-        if (!toUser.equals(displayedUser!)) {
-          setDisplayedUser(toUser);
-          navigate(`${featurePath}/${toUser.alias}`);
-        }
-      }
-    } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to get user because of exception: ${error}`,
-        0
-      );
+    const alias = event.currentTarget.textContent?.trim();
+    if (authToken && alias) {
+      await presenterRef.current!.navigateToUser(authToken, alias, displayedUser);
     }
   };
 
-  const extractAlias = (value: string): string => {
-    const index = value.indexOf("@");
-    return value.substring(index);
-  };
-
-  return {
-    navigateToUser,
-  };
+  return { navigateToUser };
 };
 
 export default useUserNavigation;

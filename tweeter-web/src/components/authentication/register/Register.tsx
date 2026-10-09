@@ -4,11 +4,11 @@ import useUserInfoActions from "../../hooks/useUserInfoActions";
 import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import { AuthToken, FakeData, User } from "tweeter-shared";
 import { Buffer } from "buffer";
 import { ToastType } from "../../toaster/Toast";
 import AuthenticationFields from "../AuthenticationFields";
 import useMessageActions from "../../hooks/useMessageActions";
+import { RegisterPresenter } from "../../../presenter/UserPresenter";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -24,21 +24,24 @@ const Register = () => {
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfoActions();
   const { displayToast } = useMessageActions();
+  const [presenter] = useState(() => new RegisterPresenter({
+    setLoading: setIsLoading,
+    displayErrorMessage: (message) => displayToast(ToastType.Error, message, 0),
+    registrationSucceeded: (user, authToken, remember) => {
+      updateUserInfo(user, user, authToken, remember);
+      navigate(`/feed/${user.alias}`);
+    },
+  }));
 
   const checkSubmitButtonStatus = (): boolean => {
-    return (
-      !firstName ||
-      !lastName ||
-      !alias ||
-      !password ||
-      !imageUrl ||
-      !imageFileExtension
+    return !presenter.canSubmit(
+      firstName, lastName, alias, password, imageBytes, imageFileExtension,
     );
   };
 
   const registerOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key == "Enter" && !checkSubmitButtonStatus()) {
-      doRegister();
+    if (event.key === "Enter" && !checkSubmitButtonStatus()) {
+      void doRegister();
     }
   };
 
@@ -84,51 +87,9 @@ const Register = () => {
   };
 
   const doRegister = async () => {
-    try {
-      setIsLoading(true);
-
-      const [user, authToken] = await register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        imageBytes,
-        imageFileExtension
-      );
-
-      updateUserInfo(user, user, authToken, rememberMe);
-      navigate(`/feed/${user.alias}`);
-    } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to register user because of exception: ${error}`,
-        0
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (
-    firstName: string,
-    lastName: string,
-    alias: string,
-    password: string,
-    userImageBytes: Uint8Array,
-    imageFileExtension: string
-  ): Promise<[User, AuthToken]> => {
-    // Not neded now, but will be needed when you make the request to the server in milestone 3
-    const imageStringBase64: string =
-      Buffer.from(userImageBytes).toString("base64");
-
-    // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
-
-    if (user === null) {
-      throw new Error("Invalid registration");
-    }
-
-    return [user, FakeData.instance.authToken];
+    await presenter.register(
+      firstName, lastName, alias, password, imageBytes, imageFileExtension, rememberMe,
+    );
   };
 
   const inputFieldFactory = () => {

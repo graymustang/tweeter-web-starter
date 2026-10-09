@@ -1,47 +1,13 @@
-import { Link, useNavigate } from "react-router-dom";
-import { AuthToken, FakeData, Status, Type, User } from "tweeter-shared";
-import { ToastType } from "../toaster/Toast";
-import useUserInfo from "../hooks/useUserInfo";
-import useUserInfoActions from "../hooks/useUserInfoActions";
-import useMessageActions from "../hooks/useMessageActions";
+import { Link } from "react-router-dom";
+import { Status, Type } from "tweeter-shared";
 
 interface Props {
   status: Status;
   featurePath: string;
+  navigateToUser: (event: React.MouseEvent) => Promise<void>;
 }
 
 const Post = (props: Props) => {
-  const { displayToast } = useMessageActions();
-  const { displayedUser, authToken } = useUserInfo();
-  const { setDisplayedUser } = useUserInfoActions();
-  const navigate = useNavigate();
-  const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
-    event.preventDefault();
-
-    try {
-      const alias = extractAlias(event.target.toString());
-
-      const toUser = await getUser(authToken!, alias);
-
-      if (toUser) {
-        if (!toUser.equals(displayedUser!)) {
-          setDisplayedUser(toUser);
-          navigate(`${props.featurePath}/${toUser.alias}`);
-        }
-      }
-    } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to get user because of exception: ${error}`,
-        0
-      );
-    }
-  };
-
-  const extractAlias = (value: string): string => {
-    const index = value.indexOf("@");
-    return value.substring(index);
-  };
 
   return (
     <>
@@ -50,7 +16,7 @@ const Post = (props: Props) => {
           <Link
             key={index}
             to={`${props.featurePath}/${segment.text}`}
-            onClick={navigateToUser}
+            onClick={props.navigateToUser}
           >
             {segment.text}
           </Link>

@@ -1,14 +1,12 @@
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { FolloweePresenter } from "../../presenter/FolloweePresenter";
+import { UserItemView } from "../../presenter/UserItemPresenter";
 import UserItemScroller from "./UserItemScroller";
 
-const FolloweesScroller = () => {
-  return (
-    <UserItemScroller
-      featurePath="/followees"
-      loadMoreItems={loadMoreFollowees}
-      itemDescription="followees"
-    />
-  );
-};
+const FolloweesScroller = () => (
+  <UserItemScroller
+    featurePath="/followees"
+    presenterFactory={(view: UserItemView) => new FolloweePresenter(view)}
+  />
+);
 
 export default FolloweesScroller;

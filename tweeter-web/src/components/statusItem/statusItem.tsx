@@ -42,6 +42,7 @@ const StatusItem = (props: Props) => {
             <Post
               status={props.status}
               featurePath={props.featurePath}
+              navigateToUser={props.navigateToUser}
             />
           </div>
         </div>

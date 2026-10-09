@@ -1,12 +1,13 @@
 import "./AppNavbar.css";
+import { useState } from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Image from "react-bootstrap/Image";
-import { AuthToken } from "tweeter-shared";
 import { ToastType } from "../toaster/Toast";
 import useUserInfo from "../hooks/useUserInfo";
 import useUserInfoActions from "../hooks/useUserInfoActions";
 import useMessageActions from "../hooks/useMessageActions";
+import { LogoutPresenter } from "../../presenter/UserPresenter";
 
 const AppNavbar = () => {
   const location = useLocation();
@@ -14,28 +15,19 @@ const AppNavbar = () => {
   const { clearUserInfo } = useUserInfoActions();
   const { displayToast, deleteToast } = useMessageActions();
   const navigate = useNavigate();
-
-  const logOut = async () => {
-    const loggingOutToastId = displayToast(ToastType.Info, "Logging Out...", 0);
-
-    try {
-      await logout(authToken!);
-
-      deleteToast(loggingOutToastId);
+  const [presenter] = useState(() => new LogoutPresenter({
+    displayProgressMessage: (message) => displayToast(ToastType.Info, message, 0),
+    deleteMessage: deleteToast,
+    logoutSucceeded: () => {
       clearUserInfo();
       navigate("/login");
-    } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to log user out because of exception: ${error}`,
-        0
-      );
-    }
-  };
+    },
+    displayErrorMessage: (message) => displayToast(ToastType.Error, message, 0),
+  }));
 
-  const logout = async (authToken: AuthToken): Promise<void> => {
-    // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
+  const logOut = (event: React.MouseEvent) => {
+    event.preventDefault();
+    void presenter.logout(authToken);
   };
 
   return (
