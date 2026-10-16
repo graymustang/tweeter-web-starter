@@ -52,6 +52,7 @@ const AuthenticatedRoutes = () => {
           path="feed/:displayedUser"
           element={
             <PagedItemScroller<Status>
+              key="feed"
               featurePath="/feed"
               presenterFactory={(view) => new FeedPresenter(view)}
               itemComponentGenerator={(status, navigateToUser) => (
@@ -65,6 +66,7 @@ const AuthenticatedRoutes = () => {
           path="story/:displayedUser"
           element={
             <PagedItemScroller<Status>
+              key="story"
               featurePath="/story"
               presenterFactory={(view) => new StoryPresenter(view)}
               itemComponentGenerator={(status, navigateToUser) => (
@@ -78,6 +80,7 @@ const AuthenticatedRoutes = () => {
           path="followees/:displayedUser"
           element={
             <PagedItemScroller<User>
+              key="followees"
               featurePath="/followees"
               presenterFactory={(view) => new FolloweePresenter(view)}
               itemComponentGenerator={(user, navigateToUser) => (
@@ -91,6 +94,7 @@ const AuthenticatedRoutes = () => {
           path="followers/:displayedUser"
           element={
             <PagedItemScroller<User>
+              key="followers"
               featurePath="/followers"
               presenterFactory={(view) => new FollowerPresenter(view)}
               itemComponentGenerator={(user, navigateToUser) => (
