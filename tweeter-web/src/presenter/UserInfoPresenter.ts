@@ -1,20 +1,20 @@
 import { AuthToken, User } from "tweeter-shared";
 import { FollowService } from "../model.service/FollowService";
+import { MessageView, Presenter } from "./Presenter";
 
-export interface UserInfoView {
+export interface UserInfoView extends MessageView {
   setUserInfo: (isFollower: boolean, followeeCount: number, followerCount: number) => void;
   setLoading: (loading: boolean) => void;
-  displayInfoMessage: (message: string) => string;
-  deleteMessage: (id: string) => void;
-  displayErrorMessage: (message: string) => void;
   currentUserSelected: (user: User, path: string) => void;
 }
 
-export class UserInfoPresenter {
+export class UserInfoPresenter extends Presenter<UserInfoView> {
   private readonly service = new FollowService();
   private requestId = 0;
 
-  public constructor(private readonly view: UserInfoView) {}
+  public constructor(view: UserInfoView) {
+    super(view);
+  }
 
   public async loadUserInfo(
     authToken: AuthToken | null,
@@ -23,7 +23,7 @@ export class UserInfoPresenter {
   ): Promise<void> {
     if (!authToken || !currentUser || !displayedUser) return;
     const requestId = ++this.requestId;
-    try {
+    await this.doFailureReportingOperation(async () => {
       const [isFollower, followeeCount, followerCount] = await Promise.all([
         currentUser.equals(displayedUser)
           ? Promise.resolve(false)
@@ -34,11 +34,11 @@ export class UserInfoPresenter {
       if (requestId === this.requestId) {
         this.view.setUserInfo(isFollower, followeeCount, followerCount);
       }
-    } catch (error) {
+    }, "load user information", (error) => {
       if (requestId === this.requestId) {
         this.view.displayErrorMessage(`Failed to load user information because of exception: ${error}`);
       }
-    }
+    });
   }
 
   public showCurrentUser(currentUser: User | null, currentPath: string): void {
@@ -61,19 +61,19 @@ export class UserInfoPresenter {
     user: User | null,
   ): Promise<void> {
     if (!authToken || !user) return;
-    let messageId = "";
-    try {
+    await this.doFailureReportingOperation(async () => {
       this.view.setLoading(true);
-      messageId = this.view.displayInfoMessage(`${following ? "Following" : "Unfollowing"} ${user.name}...`);
-      const [followerCount, followeeCount] = following
-        ? await this.service.follow(authToken, user)
-        : await this.service.unfollow(authToken, user);
-      this.view.setUserInfo(following, followeeCount, followerCount);
-    } catch (error) {
-      this.view.displayErrorMessage(`Failed to ${following ? "follow" : "unfollow"} user because of exception: ${error}`);
-    } finally {
-      if (messageId) this.view.deleteMessage(messageId);
-      this.view.setLoading(false);
-    }
+      let messageId = "";
+      try {
+        messageId = this.view.displayInfoMessage(`${following ? "Following" : "Unfollowing"} ${user.name}...`);
+        const [followerCount, followeeCount] = following
+          ? await this.service.follow(authToken, user)
+          : await this.service.unfollow(authToken, user);
+        this.view.setUserInfo(following, followeeCount, followerCount);
+      } finally {
+        if (messageId) this.view.deleteMessage(messageId);
+        this.view.setLoading(false);
+      }
+    }, `${following ? "follow" : "unfollow"} user`);
   }
 }

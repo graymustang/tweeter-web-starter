@@ -1,27 +1,24 @@
 import { AuthToken, User } from "tweeter-shared";
 import { UserService } from "../model.service/UserService";
+import { Presenter, View } from "./Presenter";
 
-export interface UserNavigationView {
+export interface UserNavigationView extends View {
   setDisplayedUser: (user: User) => void;
   navigate: (path: string) => void;
-  displayErrorMessage: (message: string) => void;
 }
 
-export class UserNavigationPresenter {
+export class UserNavigationPresenter extends Presenter<UserNavigationView> {
   private readonly userService = new UserService();
 
   public constructor(
-    private readonly view: UserNavigationView,
+    view: UserNavigationView,
     private readonly featurePath: string,
-  ) {}
+  ) {
+    super(view);
+  }
 
   public async showUser(authToken: AuthToken, alias: string): Promise<void> {
-    try {
-      const user = await this.userService.getUser(authToken, alias);
-      if (user) this.view.setDisplayedUser(user);
-    } catch (error) {
-      this.view.displayErrorMessage(`Failed to get user because of exception: ${error}`);
-    }
+    await this.loadUser(authToken, alias, (user) => this.view.setDisplayedUser(user));
   }
 
   public async navigateToUser(
@@ -29,14 +26,22 @@ export class UserNavigationPresenter {
     alias: string,
     currentUser: User | null,
   ): Promise<void> {
-    try {
-      const user = await this.userService.getUser(authToken, alias);
+    await this.loadUser(authToken, alias, (user) => {
       if (user && (!currentUser || !user.equals(currentUser))) {
         this.view.setDisplayedUser(user);
         this.view.navigate(`${this.featurePath}/${user.alias}`);
       }
-    } catch (error) {
-      this.view.displayErrorMessage(`Failed to get user because of exception: ${error}`);
-    }
+    });
+  }
+
+  private async loadUser(
+    authToken: AuthToken,
+    alias: string,
+    onUserFound: (user: User) => void,
+  ): Promise<void> {
+    await this.doFailureReportingOperation(async () => {
+      const user = await this.userService.getUser(authToken, alias);
+      if (user) onUserFound(user);
+    }, "get user");
   }
 }
