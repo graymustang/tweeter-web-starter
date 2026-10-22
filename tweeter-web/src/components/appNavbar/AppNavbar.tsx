@@ -7,7 +7,7 @@ import { ToastType } from "../toaster/Toast";
 import useUserInfo from "../hooks/useUserInfo";
 import useUserInfoActions from "../hooks/useUserInfoActions";
 import useMessageActions from "../hooks/useMessageActions";
-import { LogoutPresenter } from "../../presenter/UserPresenter";
+import { AppNavbarPresenter } from "../../presenter/AppNavbarPresenter";
 
 const AppNavbar = () => {
   const location = useLocation();
@@ -15,11 +15,11 @@ const AppNavbar = () => {
   const { clearUserInfo } = useUserInfoActions();
   const { displayToast, deleteToast } = useMessageActions();
   const navigate = useNavigate();
-  const [presenter] = useState(() => new LogoutPresenter({
-    displayProgressMessage: (message) => displayToast(ToastType.Info, message, 0),
+  const [presenter] = useState(() => new AppNavbarPresenter({
+    displayInfoMessage: (message, duration) => displayToast(ToastType.Info, message, duration ?? 0),
     deleteMessage: deleteToast,
-    logoutSucceeded: () => {
-      clearUserInfo();
+    clearUserInfo: () => clearUserInfo(),
+    navigateToLogin: () => {
       navigate("/login");
     },
     displayErrorMessage: (message) => displayToast(ToastType.Error, message, 0),
@@ -27,7 +27,7 @@ const AppNavbar = () => {
 
   const logOut = (event: React.MouseEvent) => {
     event.preventDefault();
-    void presenter.logout(authToken);
+    void presenter.logOut(authToken);
   };
 
   return (
