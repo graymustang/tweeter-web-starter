@@ -15,8 +15,8 @@ export class AppNavbarPresenter extends Presenter<AppNavbarView> {
     this._service = new UserService();
   } 
 
-  public get service() {
-    return this.service
+  public get service(): UserService {
+    return this._service;
   }
 
   public async logOut(authToken: AuthToken | null): Promise<void> {
