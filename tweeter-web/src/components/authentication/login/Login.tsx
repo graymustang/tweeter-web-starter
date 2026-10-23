@@ -11,6 +11,8 @@ import { LoginPresenter } from "../../../presenter/LoginPresenter";
 
 interface Props {
   originalUrl?: string;
+  presenter?: LoginPresenter;
+  // Make sure not to render a new presenter if we pass in a presenter (props.presenter)
 }
 
 const Login = (props: Props) => {
