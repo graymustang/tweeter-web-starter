@@ -5,13 +5,17 @@ import useUserInfo from "../hooks/useUserInfo";
 import useMessageActions from "../hooks/useMessageActions";
 import { PostStatusPresenter } from "../../presenter/PostStatusPresenter";
 
-const PostStatus = () => {
+interface Props {
+  presenter?: PostStatusPresenter;
+}
+
+const PostStatus = (props: Props) => {
   const { displayToast, deleteToast } = useMessageActions();
 
   const { currentUser, authToken } = useUserInfo();
   const [post, setPost] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [presenter] = useState(() => new PostStatusPresenter({
+  const [presenter] = useState(() => props.presenter ?? new PostStatusPresenter({
     setLoading: setIsLoading,
     displayInfoMessage: (message) => displayToast(ToastType.Info, message, 0),
     deleteMessage: deleteToast,
