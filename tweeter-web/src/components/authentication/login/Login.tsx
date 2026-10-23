@@ -24,7 +24,7 @@ const Login = (props: Props) => {
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfoActions();
   const { displayToast } = useMessageActions();
-  const [presenter] = useState(() => new LoginPresenter({
+  const [presenter] = useState(() => props.presenter ?? new LoginPresenter({
     setLoading: setIsLoading,
     displayErrorMessage: (message) => displayToast(ToastType.Error, message, 0),
     loginSucceeded: (user, authToken, remember) => {
