@@ -50,6 +50,7 @@ describe('AppNavbarPresenter', () => {
         when(mockService.logout(anything())).thenThrow(error);
 
         await appNavbarPresenter.logOut(authToken);
+        //preference: error and error occured can be a variable (string literal)
         verify(mockAppNavbarPresenterView.displayErrorMessage(`Failed to log user out because of exception: Error: An error occurred`)).once();
 
         verify(mockAppNavbarPresenterView.deleteMessage(anything())).never();

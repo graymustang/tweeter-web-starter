@@ -1,6 +1,6 @@
 import { AuthToken, Status, User } from 'tweeter-shared';
 import { StatusService } from '../../src/model.service/StatusService';
-import { anything, deepEqual, instance, mock, spy, verify, when } from '@typestrong/ts-mockito';
+import { anything, capture, instance, mock, spy, verify, when } from '@typestrong/ts-mockito';
 import {PostStatusPresenter, PostStatusView } from '../../src/presenter/PostStatusPresenter';
 
 describe('PostStatusPresenter', () => {
@@ -41,7 +41,11 @@ describe('PostStatusPresenter', () => {
         await presenter.postStatus(statusText, authToken, user);
 
         const expectedStatus = new Status(statusText, user, timestamp);
-        verify(mockService.postStatus(authToken, deepEqual(expectedStatus))).once();
+        verify(mockService.postStatus(authToken, anything())).once();
+
+        const [capturedAuthToken, capturedStatus] = capture(mockService.postStatus).last();
+        expect(capturedAuthToken).toBe(authToken);
+        expect(capturedStatus).toEqual(expectedStatus);
     });
 
     it('clears the info message and post, then displays success when posting is successful', async () => {
@@ -60,6 +64,7 @@ describe('PostStatusPresenter', () => {
         await presenter.postStatus(statusText, authToken, user);
 
         verify(mockView.deleteMessage('messageId123')).once();
+        //preference: error and error occured can be a variable (string literal)
         verify(mockView.displayErrorMessage('Failed to post the status because of exception: Error: An error occurred',),).once();
         verify(mockView.clearStatus()).never();
         verify(mockView.displaySuccessMessage(anything())).never();
