@@ -1,0 +1,4 @@
+BUCKET='cs340-bjorn'
+LAMBDA_ROLE=''
+EDIT_LAMBDALIST='tweeterDemoGetFollowees | lambda/follow/GetFolloweesLambda.handler'
+LAMBDALAYER_ARN='arn:aws:lambda:us-east-1:697372770302:layer:tweeterLambdaLayer:1'
