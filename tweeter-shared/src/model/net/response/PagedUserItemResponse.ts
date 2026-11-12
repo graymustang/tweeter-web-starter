@@ -1,8 +1,7 @@
-import { UserDto } from "../../dto/UserDto";
+import type { UserDto } from "../../dto/UserDto";
+import type { TweeterResponse } from "./TweeterResponse";
 
-export interface PagedUserItemResponse {
-    readonly success: boolean,
-    readonly message: string | null,
-    readonly items: UserDto | null,
-    readonly hasMore: boolean,
+export interface PagedUserItemResponse extends TweeterResponse {
+  readonly items: UserDto[] | null;
+  readonly hasMore: boolean;
 }
