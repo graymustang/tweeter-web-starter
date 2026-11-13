@@ -32,12 +32,12 @@ export class FollowService implements Service {
     });
   }
 
-  public async getIsFollower(
-    _authToken: AuthToken,
-    _user: User,
-    _selectedUser: User,
-  ): Promise<boolean> {
-    return FakeData.instance.isFollower();
+  public async getIsFollower( authToken: AuthToken, user: User, selectedUser: User,): Promise<boolean> {
+    return serverFacade.getIsFollower({
+      token: authToken.token,
+      user: user.dto,
+      selectedUser: selectedUser.dto,
+    });
   }
 
   public async getFolloweeCount(
@@ -71,10 +71,7 @@ export class FollowService implements Service {
     ];
   }
 
-  public async unfollow(
-    authToken: AuthToken,
-    user: User,
-  ): Promise<[followerCount: number, followeeCount: number]> {
+  public async unfollow( authToken: AuthToken, user: User,): Promise<[followerCount: number, followeeCount: number]> {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     return [
       await this.getFollowerCount(authToken, user),

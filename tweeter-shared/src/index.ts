@@ -14,10 +14,12 @@ export type { UserDto } from './model/dto/UserDto'
 // Requests
 export type { PagedUserItemRequest } from './model/net/request/PagedUserItemRequest'
 export type { CountRequest } from './model/net/request/CountRequest'
+export type { IsFollowerRequest } from './model/net/request/IsFollowerRequest'
 
 // Responses
 export type { PagedUserItemResponse } from './model/net/response/PagedUserItemResponse'
 export type { CountResponse } from './model/net/response/CountResponse'
+export type { IsFollowerResponse } from './model/net/response/IsFollowerResponse'
 
 //Other
 export { FakeData } from "./util/FakeData";

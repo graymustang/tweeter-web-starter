@@ -1,10 +1,4 @@
-import {
-  CountRequest,
-  CountResponse,
-  PagedUserItemRequest,
-  PagedUserItemResponse,
-  User,
-} from "tweeter-shared";
+import { CountRequest, CountResponse, IsFollowerRequest, IsFollowerResponse, PagedUserItemRequest, PagedUserItemResponse, User} from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
 
 export class ServerFacade {
@@ -74,5 +68,13 @@ export class ServerFacade {
     }
 
     return response.count;
+  }
+
+  public async getIsFollower(request: IsFollowerRequest): Promise<boolean> {
+    const response = await this.clientCommunicator.doPost< IsFollowerRequest,IsFollowerResponse>(request, "/follower/is-follower");
+    if (!response.success) {
+      throw new Error(response.message ?? "Failed to check follower status");
+    }
+    return response.isFollower;
   }
 }

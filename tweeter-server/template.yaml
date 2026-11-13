@@ -160,6 +160,21 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /follower/is-follower:
+            post:
+              summary: Check follower status
+              description: Returns whether the user follows the selected user.
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${isFollowerFunction.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
 
 
   #
@@ -244,6 +259,20 @@ Resources:
           Properties:
             RestApiId: !Ref tweeterApi
             Path: /followee/count
+            Method: POST
+
+  isFollowerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: isFollowerFunction
+      Handler: lambda/follow/IsFollowerLambda.handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref tweeterApi
+            Path: /follower/is-follower
             Method: POST
 
   #
