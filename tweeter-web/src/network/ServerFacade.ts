@@ -1,0 +1,32 @@
+import {
+  PagedUserItemRequest,
+  PagedUserItemResponse,
+  User,
+} from "tweeter-shared";
+import { ClientCommunicator } from "./ClientCommunicator";
+
+export class ServerFacade {
+  private readonly clientCommunicator = new ClientCommunicator(
+    "https://m9wa4vd2ja.execute-api.us-east-1.amazonaws.com/prod",
+  );
+
+  public async getMoreFollowees(
+    request: PagedUserItemRequest,
+  ): Promise<[User[], boolean]> {
+    const response = await this.clientCommunicator.doPost<
+      PagedUserItemRequest,
+      PagedUserItemResponse
+    >(request, "/followee/list");
+
+    if (!response.success) {
+      throw new Error(response.message ?? "Failed to get followees");
+    }
+
+    if (response.items == null) {
+      throw new Error("The server returned no followees");
+    }
+
+    const users = response.items.map((dto) => User.fromDto(dto) as User);
+    return [users, response.hasMore];
+  }
+}
