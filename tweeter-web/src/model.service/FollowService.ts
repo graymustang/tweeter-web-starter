@@ -10,17 +10,26 @@ export class FollowService implements Service {
     pageSize: number,
     lastFollowee: User | null,
   ): Promise<[User[], boolean]> {
-    return serverFacade.getMoreFollowees({ token: authToken.token, userAlias, pageSize, lastItem: lastFollowee?.dto ?? null,
-    })
+    return serverFacade.getMoreFollowees({
+      token: authToken.token,
+      userAlias,
+      pageSize,
+      lastItem: lastFollowee?.dto ?? null,
+    });
   }
 
   public async loadMoreFollowers(
-    _authToken: AuthToken,
+    authToken: AuthToken,
     userAlias: string,
     pageSize: number,
     lastFollower: User | null,
   ): Promise<[User[], boolean]> {
-    return FakeData.instance.getPageOfUsers(lastFollower, pageSize, userAlias);
+    return serverFacade.getMoreFollowers({
+      token: authToken.token,
+      userAlias,
+      pageSize,
+      lastItem: lastFollower?.dto ?? null,
+    });
   }
 
   public async getIsFollower(

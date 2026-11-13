@@ -29,4 +29,24 @@ export class ServerFacade {
     const users = response.items.map((dto) => User.fromDto(dto) as User);
     return [users, response.hasMore];
   }
+
+  public async getMoreFollowers(
+    request: PagedUserItemRequest,
+  ): Promise<[User[], boolean]> {
+    const response = await this.clientCommunicator.doPost<
+      PagedUserItemRequest,
+      PagedUserItemResponse
+    >(request, "/follower/list");
+
+    if (!response.success) {
+      throw new Error(response.message ?? "Failed to get followers");
+    }
+
+    if (response.items == null) {
+      throw new Error("The server returned no followers");
+    }
+
+    const users = response.items.map((dto) => User.fromDto(dto) as User);
+    return [users, response.hasMore];
+  }
 }
