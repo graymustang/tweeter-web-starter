@@ -53,9 +53,24 @@ export class ServerFacade {
   }
 
   public async getFollowerCount(request: CountRequest): Promise<number> {
-    const response = await this.clientCommunicator.doPost< CountRequest, CountResponse >(request, "/follower/count");
+    const response = await this.clientCommunicator.doPost<
+      CountRequest,
+      CountResponse
+    >(request, "/follower/count");
     if (!response.success) {
       throw new Error(response.message ?? "Failed to get follower count");
+    }
+
+    return response.count;
+  }
+
+  public async getFolloweeCount(request: CountRequest): Promise<number> {
+    const response = await this.clientCommunicator.doPost<
+      CountRequest,
+      CountResponse
+    >(request, "/followee/count");
+    if (!response.success) {
+      throw new Error(response.message ?? "Failed to get followee count");
     }
 
     return response.count;
