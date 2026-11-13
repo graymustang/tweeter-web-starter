@@ -1,4 +1,6 @@
 import {
+  CountRequest,
+  CountResponse,
   PagedUserItemRequest,
   PagedUserItemResponse,
   User,
@@ -48,5 +50,14 @@ export class ServerFacade {
 
     const users = response.items.map((dto) => User.fromDto(dto) as User);
     return [users, response.hasMore];
+  }
+
+  public async getFollowerCount(request: CountRequest): Promise<number> {
+    const response = await this.clientCommunicator.doPost< CountRequest, CountResponse >(request, "/follower/count");
+    if (!response.success) {
+      throw new Error(response.message ?? "Failed to get follower count");
+    }
+
+    return response.count;
   }
 }

@@ -48,10 +48,13 @@ export class FollowService implements Service {
   }
 
   public async getFollowerCount(
-    _authToken: AuthToken,
+    authToken: AuthToken,
     user: User,
   ): Promise<number> {
-    return FakeData.instance.getFollowerCount(user.alias);
+    return serverFacade.getFollowerCount({
+      token: authToken.token,
+      user: user.dto,
+    });
   }
 
   public async follow(
