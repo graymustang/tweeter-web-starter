@@ -1,4 +1,3 @@
-```yaml
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: SAM config for Tweeter server
@@ -24,11 +23,6 @@ Globals:
 Metadata:
   x-common-policies: &commonPolicies
     - AWSLambdaBasicExecutionRole
-    - AmazonSESFullAccess
-    - CloudWatchFullAccess
-    - AmazonDynamoDBFullAccess
-    - AmazonS3FullAccess
-    - AmazonSQSFullAccess
 
   x-common-cors-headers: &commonCorsHeaders
     method.response.header.Access-Control-Allow-Origin: "'*'"
@@ -108,6 +102,8 @@ Resources:
 
           /followee/list:
             post:
+              summary: Get more followees
+              description: Returns a page of users followed by the specified user.
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:

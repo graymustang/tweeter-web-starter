@@ -2,3 +2,5 @@
 /dist
 /nodejs
 /layer/
+/.aws-sam/
+/.sam-tmp/
