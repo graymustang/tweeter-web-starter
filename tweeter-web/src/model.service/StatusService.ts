@@ -1,26 +1,43 @@
-import { AuthToken, FakeData, Status } from "tweeter-shared";
+import { AuthToken, Status } from "tweeter-shared";
 import { Service } from "./Service";
+import { ServerFacade } from "../network/ServerFacade";
+const serverFacade = new ServerFacade();
 
 export class StatusService implements Service{
   public async loadMoreFeedItems(
-    _authToken: AuthToken,
-    _userAlias: string,
+    authToken: AuthToken,
+    userAlias: string,
     pageSize: number,
     lastItem: Status | null,
   ): Promise<[Status[], boolean]> {
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+    return serverFacade.getMoreFeedItems({
+      token: authToken.token,
+      userAlias,
+      pageSize,
+      lastItem: lastItem ? { post: lastItem.post, user: lastItem.user.dto, timestamp: lastItem.timestamp }: null,
+    });
   }
 
   public async loadMoreStoryItems(
-    _authToken: AuthToken,
-    _userAlias: string,
+    authToken: AuthToken,
+    userAlias: string,
     pageSize: number,
     lastItem: Status | null,
   ): Promise<[Status[], boolean]> {
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+    return serverFacade.getMoreStoryItems({
+      token: authToken.token,
+      userAlias,
+      pageSize,
+      lastItem: lastItem ? { post: lastItem.post, user: lastItem.user.dto, timestamp: lastItem.timestamp } : null,
+    });
   }
 
-  public async postStatus(_authToken: AuthToken, _status: Status): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+  public async postStatus(authToken: AuthToken, status: Status): Promise<void> {
+    return serverFacade.postStatus({
+      token: authToken.token,
+      post: status.post,
+      userAlias: status.user.alias,
+      timestamp: status.timestamp,
+    });
   }
 }

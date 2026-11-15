@@ -1,31 +1,37 @@
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
 import { Service } from "./Service";
+import { ServerFacade } from "../network/ServerFacade";
+
+const serverFacade = new ServerFacade();
 
 export class UserService implements Service {
-  public async getUser(_authToken: AuthToken, alias: string): Promise<User | null> {
-    return FakeData.instance.findUserByAlias(alias);
+  public async getUser(authToken: AuthToken, alias: string): Promise<User | null> {
+    return serverFacade.getUser({ token: authToken.token, alias });
   }
 
-  public async login(_alias: string, _password: string): Promise<[User, AuthToken]> {
-    const user = FakeData.instance.firstUser;
-    if (!user) throw new Error("Invalid alias or password");
-    return [user, FakeData.instance.authToken];
+  public async login(alias: string, password: string): Promise<[User, AuthToken]> {
+    return serverFacade.login({ alias, password });
   }
 
   public async register(
-    _firstName: string,
-    _lastName: string,
-    _alias: string,
-    _password: string,
-    _imageBytes: Uint8Array,
-    _imageFileExtension: string,
+    firstName: string,
+    lastName: string,
+    alias: string,
+    password: string,
+    imageBytes: Uint8Array,
+    imageFileExtension: string,
   ): Promise<[User, AuthToken]> {
-    const user = FakeData.instance.firstUser;
-    if (!user) throw new Error("Invalid registration");
-    return [user, FakeData.instance.authToken];
+    return serverFacade.register({
+      firstName,
+      lastName,
+      alias,
+      password,
+      imageBytes: Array.from(imageBytes),
+      imageFileExtension,
+    });
   }
 
-  public async logout(_authToken: AuthToken): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  public async logout(authToken: AuthToken): Promise<void> {
+    return serverFacade.logout({ token: authToken.token });
   }
 }

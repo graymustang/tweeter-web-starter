@@ -1,4 +1,4 @@
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
 import { Service } from "./Service";
 import { ServerFacade } from "../network/ServerFacade";
 const serverFacade = new ServerFacade();
@@ -64,18 +64,10 @@ export class FollowService implements Service {
     authToken: AuthToken,
     user: User,
   ): Promise<[followerCount: number, followeeCount: number]> {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    return [
-      await this.getFollowerCount(authToken, user),
-      await this.getFolloweeCount(authToken, user),
-    ];
+    return serverFacade.follow({ token: authToken.token, user: user.dto });
   }
 
   public async unfollow( authToken: AuthToken, user: User,): Promise<[followerCount: number, followeeCount: number]> {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    return [
-      await this.getFollowerCount(authToken, user),
-      await this.getFolloweeCount(authToken, user),
-    ];
+    return serverFacade.unfollow({ token: authToken.token, user: user.dto });
   }
 }
