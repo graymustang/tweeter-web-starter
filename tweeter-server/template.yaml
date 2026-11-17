@@ -536,6 +536,11 @@ Resources:
             RestApiId: !Ref tweeterApi
             Path: /status/post
             Method: POST
+
+Outputs:
+  ApiUrl:
+    Description: Base URL for the deployed Tweeter API
+    Value: !Sub "https://${tweeterApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
   #
 
 
