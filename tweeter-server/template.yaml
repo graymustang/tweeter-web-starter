@@ -94,6 +94,65 @@ Resources:
           "500":
             description: "Internal Server Error"
             headers: *commonSwaggerResponseHeaders
+        x-amazon-apigateway-documentation:
+          version: "1.0.0"
+          documentationParts:
+            - location: { type: METHOD, path: /followee/list, method: POST }
+              properties:
+                summary: Get more followees
+                description: Returns a page of users followed by the specified user.
+            - location: { type: METHOD, path: /followee/count, method: POST }
+              properties:
+                summary: Get followee count
+                description: Returns the number of users the specified user follows.
+            - location: { type: METHOD, path: /follower/list, method: POST }
+              properties:
+                summary: Get more followers
+                description: Returns a page of users who follow the specified user.
+            - location: { type: METHOD, path: /follower/count, method: POST }
+              properties:
+                summary: Get follower count
+                description: Returns the number of followers for the specified user.
+            - location: { type: METHOD, path: /follower/is-follower, method: POST }
+              properties:
+                summary: Check follower status
+                description: Returns whether the user follows the selected user.
+            - location: { type: METHOD, path: /follow/follow, method: POST }
+              properties:
+                summary: Follow a user
+                description: Follows the specified user and returns updated counts.
+            - location: { type: METHOD, path: /follow/unfollow, method: POST }
+              properties:
+                summary: Unfollow a user
+                description: Stops following the specified user and returns updated counts.
+            - location: { type: METHOD, path: /user/get, method: POST }
+              properties:
+                summary: Get a user
+                description: Returns the user with the requested alias.
+            - location: { type: METHOD, path: /user/login, method: POST }
+              properties:
+                summary: Log in
+                description: Authenticates a user and returns an authentication token.
+            - location: { type: METHOD, path: /user/register, method: POST }
+              properties:
+                summary: Register
+                description: Registers a user and returns an authentication token.
+            - location: { type: METHOD, path: /user/logout, method: POST }
+              properties:
+                summary: Log out
+                description: Ends the user's session.
+            - location: { type: METHOD, path: /status/feed, method: POST }
+              properties:
+                summary: Get feed items
+                description: Returns a page of status items for the user's feed.
+            - location: { type: METHOD, path: /status/story, method: POST }
+              properties:
+                summary: Get story items
+                description: Returns a page of statuses posted by the specified user.
+            - location: { type: METHOD, path: /status/post, method: POST }
+              properties:
+                summary: Post a status
+                description: Publishes a status for the authenticated user.
         paths:
 
           #
