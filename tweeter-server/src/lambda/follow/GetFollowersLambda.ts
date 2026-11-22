@@ -1,17 +1,11 @@
-import {
-  PagedUserItemRequest,
-  PagedUserItemResponse,
-} from "tweeter-shared";
+import {PagedUserItemRequest,PagedUserItemResponse } from "tweeter-shared";
 import { FollowService } from "../../model/service/FollowService";
+import { getDaoFactory } from "../../model/dao/DaoFactoryProvider";
+import { withErrorMapping } from "../withErrorMapping";
 
-export const handler = async (request: PagedUserItemRequest): Promise<PagedUserItemResponse> => {
-  const followService = new FollowService();
-  const [items, hasMore] = await followService.loadMoreFollowers(
-    request.token,
-    request.userAlias,
-    request.pageSize,
-    request.lastItem,
-  );
+const handle = async (request: PagedUserItemRequest): Promise<PagedUserItemResponse> => {
+  const followService = new FollowService(getDaoFactory());
+  const [items, hasMore] = await followService.loadMoreFollowers(request.token, request.userAlias, request.pageSize, request.lastItem);
 
   return {
     success: true,
@@ -20,3 +14,4 @@ export const handler = async (request: PagedUserItemRequest): Promise<PagedUserI
     hasMore,
   };
 };
+export const handler = withErrorMapping(handle);
