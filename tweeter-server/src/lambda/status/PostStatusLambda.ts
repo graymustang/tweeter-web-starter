@@ -1,9 +1,9 @@
-import { FakeData, Status, type StatusRequest, type TweeterResponse } from "tweeter-shared";
+import { type StatusRequest, type TweeterResponse } from "tweeter-shared";
 import { StatusService } from "../../model/service/StatusService";
-
-export const handler = async (request: StatusRequest): Promise<TweeterResponse> => {
-  const user = FakeData.instance.findUserByAlias(request.userAlias);
-  if (!user) throw new Error("A valid user is needed to post a status");
-  await new StatusService().postStatus(request.token, new Status(request.post, user, request.timestamp));
+import { getDaoFactory } from "../../model/dao/DaoFactoryProvider";
+import { withErrorMapping } from "../withErrorMapping";
+const handle = async (request: StatusRequest): Promise<TweeterResponse> => {
+  await new StatusService(getDaoFactory()).postStatus(request.token, request.userAlias, request.post, request.timestamp);
   return { success: true, message: null };
-};
+}
+export const handler = withErrorMapping(handle);
