@@ -14,6 +14,15 @@ Globals:
       - !Ref tweeterLayer
     Timeout: 30
     MemorySize: 128
+    Environment:
+      Variables:
+        USERS_TABLE: !Ref UsersTable
+        AUTH_TOKENS_TABLE: !Ref AuthTokensTable
+        FOLLOWS_TABLE: !Ref FollowsTable
+        STORIES_TABLE: !Ref StoriesTable
+        FEEDS_TABLE: !Ref FeedsTable
+        PROFILE_IMAGE_BUCKET: !Ref ProfileImagesBucket
+        AUTH_TOKEN_TTL_SECONDS: "1800"
 
 
 #
@@ -23,6 +32,44 @@ Globals:
 Metadata:
   x-common-policies: &commonPolicies
     - AWSLambdaBasicExecutionRole
+    - DynamoDBCrudPolicy:
+        TableName: !Ref UsersTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref AuthTokensTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref FollowsTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref StoriesTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref FeedsTable
+    - Statement:
+        - Effect: Allow
+          Action: dynamodb:TransactWriteItems
+          Resource:
+            - !GetAtt UsersTable.Arn
+            - !GetAtt FollowsTable.Arn
+  x-register-policies: &registerPolicies
+    - AWSLambdaBasicExecutionRole
+    - DynamoDBCrudPolicy:
+        TableName: !Ref UsersTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref AuthTokensTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref FollowsTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref StoriesTable
+    - DynamoDBCrudPolicy:
+        TableName: !Ref FeedsTable
+    - Statement:
+        - Effect: Allow
+          Action: dynamodb:TransactWriteItems
+          Resource:
+            - !GetAtt UsersTable.Arn
+            - !GetAtt FollowsTable.Arn
+    - Statement:
+        - Effect: Allow
+          Action: s3:PutObject
+          Resource: !Sub "${ProfileImagesBucket.Arn}/image/*"
 
   x-common-cors-headers: &commonCorsHeaders
     method.response.header.Access-Control-Allow-Origin: "'*'"
@@ -36,6 +83,133 @@ Metadata:
 # AWS resource definitions
 #
 Resources:
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TweeterUsers
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      AttributeDefinitions:
+        - AttributeName: alias
+          AttributeType: S
+      KeySchema:
+        - AttributeName: alias
+          KeyType: HASH
+
+  AuthTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TweeterAuthTokens
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      AttributeDefinitions:
+        - AttributeName: token
+          AttributeType: S
+      KeySchema:
+        - AttributeName: token
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+
+  FollowsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TweeterFollows
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      AttributeDefinitions:
+        - AttributeName: followerAlias
+          AttributeType: S
+        - AttributeName: followeeAlias
+          AttributeType: S
+      KeySchema:
+        - AttributeName: followerAlias
+          KeyType: HASH
+        - AttributeName: followeeAlias
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: followeeAlias-index
+          KeySchema:
+            - AttributeName: followeeAlias
+              KeyType: HASH
+            - AttributeName: followerAlias
+              KeyType: RANGE
+          Projection:
+            ProjectionType: KEYS_ONLY
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+
+  StoriesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TweeterStories
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      AttributeDefinitions:
+        - AttributeName: userAlias
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: userAlias
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+
+  FeedsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TweeterFeeds
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 10
+      AttributeDefinitions:
+        - AttributeName: userAlias
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: userAlias
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+
+  ProfileImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+  ProfileImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ProfileImagesBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: PublicReadProfileImages
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${ProfileImagesBucket.Arn}/image/*"
 
 
   #
@@ -531,7 +705,7 @@ Resources:
     Properties:
       FunctionName: registerFunction
       Handler: lambda/user/RegisterLambda.handler
-      Policies: *commonPolicies
+      Policies: *registerPolicies
       Events:
         PostApi:
           Type: Api
