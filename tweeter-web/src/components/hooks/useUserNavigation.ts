@@ -33,7 +33,7 @@ const useUserNavigation = (featurePath: string) => {
 
   const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
-    const alias = event.currentTarget.textContent?.trim();
+    const alias = event.currentTarget.textContent?.trim().replace(/^@/, "");
     if (authToken && alias) {
       await presenterRef.current!.navigateToUser(authToken, alias, displayedUser);
     }

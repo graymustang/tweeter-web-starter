@@ -40,12 +40,12 @@ export class DynamoAuthTokenDao implements AuthTokenDao {
         TableName: tables.authTokens,
         Key: { token },
         UpdateExpression: "SET #timestamp = :timestamp, expiresAt = :expiresAt",
-        ExpressionAttributeNames: { "#timestamp": "timestamp" },
+        ExpressionAttributeNames: { "#timestamp": "timestamp", "#token": "token" },
         ExpressionAttributeValues: {
           ":timestamp": timestamp,
           ":expiresAt": Math.floor(timestamp / 1000) + tokenLifetimeSeconds,
         },
-        ConditionExpression: "attribute_exists(token)",
+        ConditionExpression: "attribute_exists(#token)",
       }));
     } catch (error) {
       if ((error as { name?: string }).name === "ConditionalCheckFailedException") {
