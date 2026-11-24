@@ -2,5 +2,11 @@
 /dist
 /nodejs
 /layer/
+!/layer/
+/layer/*
+!/layer/nodejs/
+/layer/nodejs/*
+!/layer/nodejs/package.json
+!/layer/nodejs/package-lock.json
 /.aws-sam/
 /.sam-tmp/
